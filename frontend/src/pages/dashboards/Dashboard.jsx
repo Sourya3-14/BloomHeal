@@ -38,32 +38,28 @@ export default function Dashboard() {
     {
       title: "Find Doctors",
       icon: "👨‍⚕️",
-      description:
-        "Connect with qualified healthcare professionals in your area.",
+      description: "Connect with qualified healthcare professionals in your area.",
       button: "Browse Doctors",
       path: "/doctors",
     },
     {
       title: "Connect with NGOs",
       icon: "🏛️",
-      description:
-        "Discover non-governmental organizations working for community health.",
+      description: "Discover non-governmental organizations working for community health.",
       button: "View NGOs",
       path: "/ngos",
     },
     {
       title: "Health Workers",
       icon: "🏥",
-      description:
-        "Access community health workers for local healthcare support.",
+      description: "Access community health workers for local healthcare support.",
       button: "Find Workers",
       path: "/healthworkers",
     },
     {
       title: "Health Blogs",
       icon: "📰",
-      description:
-        "Stay informed with healthcare insights and updates from experts.",
+      description: "Stay informed with healthcare insights and updates from experts.",
       button: "Read Blogs",
       path: "/blogs",
     },
@@ -82,9 +78,7 @@ export default function Dashboard() {
         <Navbar onLogout={handleLogout} />
         <div className="flex min-h-[calc(100vh-80px)] w-full flex-col items-center justify-center">
           <div className="h-10 w-10 animate-spin rounded-full border-4 border-[#C8E6D8] border-t-[#2D7A5F]" />
-          <p className="mt-4 text-sm font-medium text-[#4A7A6A]">
-            Loading your dashboard…
-          </p>
+          <p className="mt-4 text-sm font-medium text-[#4A7A6A]">Loading your dashboard…</p>
         </div>
       </div>
     );
@@ -106,16 +100,10 @@ export default function Dashboard() {
         {/* ── Welcome Banner ── */}
         <div className="mb-12 overflow-hidden rounded-2xl bg-gradient-to-br from-[#1A3C34] via-[#2D7A5F] to-[#4CAF82] shadow-xl w-full">
           <div className="px-6 py-12 text-center sm:px-12 md:py-16">
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[#C8E6D8]">
-              Welcome back
-            </p>
-            <h2 className="text-3xl font-extrabold text-white sm:text-5xl">
-              Hello, {user?.firstName || "Ayush"}!
-            </h2>
+            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[#C8E6D8]">Welcome back</p>
+            <h2 className="text-3xl font-extrabold text-white sm:text-5xl">Hello, {user?.firstName || "Ayush"}!</h2>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-white/90 px-4">
-              Welcome to your BloomHeal dashboard. Access healthcare services,
-              manage your profile, and stay connected with trusted healthcare
-              providers.
+              Welcome to your WellNest dashboard. Access healthcare services, manage your profile, and stay connected with trusted healthcare providers.
             </p>
             <div className="mt-6 inline-flex items-center rounded-full bg-white/10 px-5 py-1.5 text-xs font-semibold uppercase tracking-wider text-white backdrop-blur-sm border border-white/20">
               <span className="mr-1.5 h-2 w-2 rounded-full bg-[#4CAF82] animate-pulse"></span>
@@ -129,23 +117,16 @@ export default function Dashboard() {
           {dashboardCards.map((card) => (
             <div
               key={card.title}
-              className="flex flex-col justify-between overflow-hidden rounded-xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-[#E8F5F0]"
-            >
+              className="flex flex-col justify-between overflow-hidden rounded-xl bg-white shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-xl border border-[#E8F5F0]">
               <div>
                 {/* Card Header */}
                 <div className="flex items-center gap-4 border-b border-[#E8F5F0] bg-[#F6FFFC] px-5 py-4">
-                  <span className="text-2xl filter drop-shadow-sm">
-                    {card.icon}
-                  </span>
-                  <h3 className="text-base font-bold text-[#1A3C34] tracking-tight">
-                    {card.title}
-                  </h3>
+                  <span className="text-2xl filter drop-shadow-sm">{card.icon}</span>
+                  <h3 className="text-base font-bold text-[#1A3C34] tracking-tight">{card.title}</h3>
                 </div>
                 {/* Card Body */}
                 <div className="px-5 py-5">
-                  <p className="text-sm leading-relaxed text-[#4A7A6A]">
-                    {card.description}
-                  </p>
+                  <p className="text-sm leading-relaxed text-[#4A7A6A]">{card.description}</p>
                 </div>
               </div>
 
@@ -153,8 +134,7 @@ export default function Dashboard() {
               <div className="px-5 pb-5 pt-2">
                 <button
                   onClick={() => navigate(card.path)}
-                  className="w-full rounded-lg bg-[#2D7A5F] py-2.5 text-sm font-bold text-white transition-all duration-200 hover:bg-[#245F4A] hover:shadow-md active:scale-[0.98]"
-                >
+                  className="w-full rounded-lg bg-[#2D7A5F] py-2.5 text-sm font-bold text-white transition-all duration-200 hover:bg-[#245F4A] hover:shadow-md active:scale-[0.98]">
                   {card.button}
                 </button>
               </div>
@@ -166,9 +146,7 @@ export default function Dashboard() {
         <div className="overflow-hidden rounded-xl bg-white shadow-md border border-[#E8F5F0] w-full">
           <div className="flex items-center gap-3 border-b border-[#E8F5F0] bg-[#F6FFFC] px-6 py-5">
             <span className="text-xl">⚡</span>
-            <h3 className="text-base font-bold text-[#1A3C34]">
-              Quick Actions
-            </h3>
+            <h3 className="text-base font-bold text-[#1A3C34]">Quick Actions</h3>
           </div>
           <div className="p-6">
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4 w-full">
@@ -176,8 +154,7 @@ export default function Dashboard() {
                 <button
                   key={action.title}
                   onClick={() => navigate(action.path)}
-                  className="flex items-center justify-center gap-3 rounded-xl border-2 border-[#C8E6D8] bg-[#F0F7F4] px-4 py-3.5 text-sm font-bold text-[#2D7A5F] transition-all duration-200 hover:border-[#2D7A5F] hover:bg-[#2D7A5F] hover:text-white hover:shadow-sm active:scale-[0.98]"
-                >
+                  className="flex items-center justify-center gap-3 rounded-xl border-2 border-[#C8E6D8] bg-[#F0F7F4] px-4 py-3.5 text-sm font-bold text-[#2D7A5F] transition-all duration-200 hover:border-[#2D7A5F] hover:bg-[#2D7A5F] hover:text-white hover:shadow-sm active:scale-[0.98]">
                   <span className="text-base">{action.icon}</span>
                   {action.title}
                 </button>

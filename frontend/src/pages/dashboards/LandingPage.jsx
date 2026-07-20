@@ -1,19 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { aiApi } from "../../utils/api";
-import {
-  Stethoscope,
-  Building2,
-  HeartPulse,
-  BookOpen,
-  Send,
-  Sparkles,
-  ArrowRight,
-  ArrowUpRight,
-  ShieldCheck,
-  Users,
-  Activity,
-} from "lucide-react";
+import { Stethoscope, Building2, HeartPulse, BookOpen, Send, Sparkles, ArrowRight, ArrowUpRight, ShieldCheck, Users, Activity } from "lucide-react";
 
 export default function LandingPage() {
   const navigate = useNavigate();
@@ -50,10 +38,7 @@ export default function LandingPage() {
     try {
       const { data } = await aiApi.post("/chat", { message });
       const reply = data?.reply || "";
-      setChatMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: reply },
-      ]);
+      setChatMessages((prev) => [...prev, { role: "assistant", content: reply }]);
     } catch (err) {
       setChatMessages((prev) => [
         ...prev,
@@ -113,31 +98,21 @@ export default function LandingPage() {
               Unified Ecosystem
             </div>
             <h1 className="text-4xl font-extrabold sm:text-6xl tracking-tight leading-tight">
-              Welcome to{" "}
-              <span className="bg-gradient-to-r from-[#1A3C34] via-[#2D7A5F] to-[#4CAF82] bg-clip-text text-transparent">
-                BloomHeal
-              </span>
+              Welcome to <span className="bg-gradient-to-r from-[#1A3C34] via-[#2D7A5F] to-[#4CAF82] bg-clip-text text-transparent">WellNest</span>
             </h1>
             <p className="text-base sm:text-lg text-[#4A7A6A] font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed">
-              A comprehensive healthcare ecosystem connecting patients,
-              healthcare professionals, and community support networks for
-              optimized medical outcomes.
+              A comprehensive healthcare ecosystem connecting patients, healthcare professionals, and community support networks for optimized medical outcomes.
             </p>
             <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2">
               <button
                 onClick={() => navigate("/signup")}
-                className="group flex items-center gap-2 rounded-xl bg-[#2D7A5F] px-6 py-3.5 font-bold text-white transition-all duration-200 hover:bg-[#245F4A] hover:shadow-lg hover:shadow-[#2D7A5F]/20 active:scale-[0.98]"
-              >
+                className="group flex items-center gap-2 rounded-xl bg-[#2D7A5F] px-6 py-3.5 font-bold text-white transition-all duration-200 hover:bg-[#245F4A] hover:shadow-lg hover:shadow-[#2D7A5F]/20 active:scale-[0.98]">
                 Get Started
-                <ArrowRight
-                  size={16}
-                  className="group-hover:translate-x-0.5 transition-transform"
-                />
+                <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
               </button>
               <button
                 onClick={() => navigate("/signin")}
-                className="rounded-xl border-2 border-[#C8E6D8] bg-white px-6 py-3.5 font-bold text-[#2D7A5F] transition-all duration-200 hover:border-[#2D7A5F] hover:bg-[#2D7A5F]/5 active:scale-[0.98]"
-              >
+                className="rounded-xl border-2 border-[#C8E6D8] bg-white px-6 py-3.5 font-bold text-[#2D7A5F] transition-all duration-200 hover:border-[#2D7A5F] hover:bg-[#2D7A5F]/5 active:scale-[0.98]">
                 Sign In to Platform
               </button>
             </div>
@@ -157,12 +132,9 @@ export default function LandingPage() {
       {/* ── 2. FEATURES GRID SECTION ── */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 mx-auto max-w-[1200px]">
         <div className="text-center space-y-3 mb-16">
-          <h2 className="text-3xl font-black tracking-tight">
-            Why Choose BloomHeal?
-          </h2>
+          <h2 className="text-3xl font-black tracking-tight">Why Choose WellNest?</h2>
           <p className="text-sm sm:text-base text-[#4A7A6A] font-medium max-w-xl mx-auto">
-            Breaking down communication siloes to deliver decentralized medicine
-            and local emergency tracking infrastructure.
+            Breaking down communication siloes to deliver decentralized medicine and local emergency tracking infrastructure.
           </p>
         </div>
 
@@ -170,18 +142,11 @@ export default function LandingPage() {
           {features.map((feat, index) => (
             <div
               key={index}
-              className="group bg-white rounded-2xl border border-[#E8F5F0] p-6 shadow-sm hover:shadow-xl hover:border-[#C8E6D8] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between"
-            >
+              className="group bg-white rounded-2xl border border-[#E8F5F0] p-6 shadow-sm hover:shadow-xl hover:border-[#C8E6D8] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between">
               <div className="space-y-4">
-                <div className="w-12 h-12 bg-[#F6FFFC] border border-[#C8E6D8] rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-105">
-                  {feat.icon}
-                </div>
-                <h3 className="text-lg font-bold text-[#1A3C34] group-hover:text-[#2D7A5F] transition-colors">
-                  {feat.title}
-                </h3>
-                <p className="text-xs sm:text-sm leading-relaxed text-[#4A7A6A] font-medium">
-                  {feat.desc}
-                </p>
+                <div className="w-12 h-12 bg-[#F6FFFC] border border-[#C8E6D8] rounded-xl flex items-center justify-center transition-transform duration-300 group-hover:scale-105">{feat.icon}</div>
+                <h3 className="text-lg font-bold text-[#1A3C34] group-hover:text-[#2D7A5F] transition-colors">{feat.title}</h3>
+                <p className="text-xs sm:text-sm leading-relaxed text-[#4A7A6A] font-medium">{feat.desc}</p>
               </div>
             </div>
           ))}
@@ -189,10 +154,7 @@ export default function LandingPage() {
       </section>
 
       {/* ── 3. PREMIUM AI ASSISTANT SECTION ── */}
-      <section
-        className="py-12 px-4 sm:px-6 lg:px-8 mx-auto max-w-[1200px]"
-        id="ai-assistant"
-      >
+      <section className="py-12 px-4 sm:px-6 lg:px-8 mx-auto max-w-[1200px]" id="ai-assistant">
         <div className="bg-white rounded-3xl border border-[#E8F5F0] shadow-xl overflow-hidden grid grid-cols-1 lg:grid-cols-12">
           {/* Info Side Panel */}
           <div className="lg:col-span-4 bg-gradient-to-br from-[#1A3C34] to-[#2D7A5F] p-8 lg:p-10 text-white flex flex-col justify-between relative overflow-hidden">
@@ -202,13 +164,9 @@ export default function LandingPage() {
                 <Sparkles size={12} className="text-[#4CAF82]" />
                 Neural Network Mode
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
-                AI Clinical Assistant
-              </h2>
+              <h2 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">AI Clinical Assistant</h2>
               <p className="text-xs sm:text-sm leading-relaxed text-white/80 font-medium">
-                Ask initial wellness questions safely. Guest interactions are
-                ephemeral, while account users gain absolute encrypted history
-                syncs.
+                Ask initial wellness questions safely. Guest interactions are ephemeral, while account users gain absolute encrypted history syncs.
               </p>
             </div>
 
@@ -232,27 +190,16 @@ export default function LandingPage() {
                 {chatMessages.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center p-4 space-y-2">
                     <Sparkles className="w-8 h-8 text-[#2D7A5F]/40 animate-pulse" />
-                    <p className="text-xs sm:text-sm font-bold text-[#4A7A6A]">
-                      Awaiting query parameter initialization...
-                    </p>
-                    <p className="text-[11px] text-[#4A7A6A]/60 font-medium">
-                      Type something on the right side panel to trigger the
-                      model response.
-                    </p>
+                    <p className="text-xs sm:text-sm font-bold text-[#4A7A6A]">Awaiting query parameter initialization...</p>
+                    <p className="text-[11px] text-[#4A7A6A]/60 font-medium">Type something on the right side panel to trigger the model response.</p>
                   </div>
                 ) : (
                   chatMessages.map((m, idx) => (
-                    <div
-                      key={idx}
-                      className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}
-                    >
+                    <div key={idx} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                       <div
                         className={`text-xs sm:text-sm max-w-[85%] px-4 py-2.5 rounded-2xl font-medium shadow-sm leading-relaxed ${
-                          m.role === "user"
-                            ? "bg-gradient-to-br from-[#2D7A5F] to-[#4CAF82] text-white rounded-br-none"
-                            : "bg-[#F0F7F4] text-[#1A3C34] border border-[#E8F5F0] rounded-bl-none"
-                        }`}
-                      >
+                          m.role === "user" ? "bg-gradient-to-br from-[#2D7A5F] to-[#4CAF82] text-white rounded-br-none" : "bg-[#F0F7F4] text-[#1A3C34] border border-[#E8F5F0] rounded-bl-none"
+                        }`}>
                         {m.content}
                       </div>
                     </div>
@@ -265,9 +212,7 @@ export default function LandingPage() {
             {/* Input Stack */}
             <div className="sm:w-64 flex flex-col gap-3 justify-between">
               <div className="flex-1 flex flex-col">
-                <label className="text-[11px] font-extrabold uppercase tracking-widest text-[#4A7A6A] mb-1.5 block">
-                  Input Stream
-                </label>
+                <label className="text-[11px] font-extrabold uppercase tracking-widest text-[#4A7A6A] mb-1.5 block">Input Stream</label>
                 <textarea
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
@@ -278,13 +223,9 @@ export default function LandingPage() {
               <button
                 onClick={sendMessage}
                 disabled={isSending || !chatInput.trim()}
-                className="w-full group flex items-center justify-center gap-2 rounded-xl bg-[#2D7A5F] py-3 text-sm font-bold text-white transition-all duration-200 hover:bg-[#245F4A] disabled:opacity-40 disabled:pointer-events-none shadow-md shadow-[#2D7A5F]/10 active:scale-95"
-              >
+                className="w-full group flex items-center justify-center gap-2 rounded-xl bg-[#2D7A5F] py-3 text-sm font-bold text-white transition-all duration-200 hover:bg-[#245F4A] disabled:opacity-40 disabled:pointer-events-none shadow-md shadow-[#2D7A5F]/10 active:scale-95">
                 {isSending ? "Processing..." : "Ask Assistant"}
-                <Send
-                  size={14}
-                  className="opacity-70 group-hover:translate-x-0.5 transition-transform"
-                />
+                <Send size={14} className="opacity-70 group-hover:translate-x-0.5 transition-transform" />
               </button>
             </div>
           </div>
@@ -295,20 +236,13 @@ export default function LandingPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 mx-auto max-w-[1200px]">
         <div className="bg-white rounded-3xl border border-[#E8F5F0] p-8 sm:p-12 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6">
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">
-              About BloomHeal
-            </h2>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">About WellNest</h2>
             <p className="text-xs sm:text-sm leading-relaxed text-[#4A7A6A] font-medium">
-              BloomHeal is an architectural health network framework designed
-              explicitly to link active practitioners directly to community
-              patient nodes. We reduce systemic routing overhead so immediate
-              local responses take precedence during regional operational
-              stresses.
+              WellNest is an architectural health network framework designed explicitly to link active practitioners directly to community patient nodes. We reduce systemic routing overhead so
+              immediate local responses take precedence during regional operational stresses.
             </p>
             <p className="text-xs sm:text-sm leading-relaxed text-[#4A7A6A] font-medium">
-              Whether searching for authorized emergency mobile care vectors,
-              verifying non-profit organizational camp maps, or executing
-              standard symptom modeling profiles, BloomHeal ensures complete
+              Whether searching for authorized emergency mobile care vectors, verifying non-profit organizational camp maps, or executing standard symptom modeling profiles, WellNest ensures complete
               operational parity.
             </p>
           </div>
@@ -316,20 +250,11 @@ export default function LandingPage() {
           {/* Stats Bar */}
           <div className="lg:col-span-5 grid grid-cols-1 gap-4">
             {stats.map((item, idx) => (
-              <div
-                key={idx}
-                className="flex items-center gap-4 bg-[#F0F7F4]/50 border border-[#E8F5F0] p-4 rounded-2xl"
-              >
-                <div className="w-10 h-10 bg-white border border-[#C8E6D8] rounded-xl flex items-center justify-center text-[#2D7A5F] shadow-sm">
-                  {item.icon}
-                </div>
+              <div key={idx} className="flex items-center gap-4 bg-[#F0F7F4]/50 border border-[#E8F5F0] p-4 rounded-2xl">
+                <div className="w-10 h-10 bg-white border border-[#C8E6D8] rounded-xl flex items-center justify-center text-[#2D7A5F] shadow-sm">{item.icon}</div>
                 <div>
-                  <div className="text-xl font-black text-[#1A3C34] tracking-tight">
-                    {item.num}
-                  </div>
-                  <div className="text-xs font-bold text-[#4A7A6A]">
-                    {item.label}
-                  </div>
+                  <div className="text-xl font-black text-[#1A3C34] tracking-tight">{item.num}</div>
+                  <div className="text-xs font-bold text-[#4A7A6A]">{item.label}</div>
                 </div>
               </div>
             ))}
@@ -342,17 +267,11 @@ export default function LandingPage() {
         <div className="max-w-[800px] mx-auto bg-gradient-to-br from-[#1A3C34] to-[#2D7A5F] text-white rounded-3xl p-8 sm:p-12 shadow-xl relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(#4CAF82_1px,transparent_1px)] [background-size:16px_16px] opacity-10" />
           <div className="relative z-10 space-y-6">
-            <h2 className="text-3xl font-black tracking-tight">
-              Ready to Get Started?
-            </h2>
-            <p className="text-sm text-white/80 font-medium max-w-md mx-auto leading-relaxed">
-              Provision your encrypted health tracking account keys inside our
-              main decentralized hub today.
-            </p>
+            <h2 className="text-3xl font-black tracking-tight">Ready to Get Started?</h2>
+            <p className="text-sm text-white/80 font-medium max-w-md mx-auto leading-relaxed">Provision your encrypted health tracking account keys inside our main decentralized hub today.</p>
             <button
               onClick={() => navigate("/signup")}
-              className="mx-auto rounded-xl bg-white px-6 py-3.5 text-sm font-extrabold text-[#1A3C34] transition-all duration-200 hover:bg-[#F0F7F4] hover:shadow-lg active:scale-[0.98]"
-            >
+              className="mx-auto rounded-xl bg-white px-6 py-3.5 text-sm font-extrabold text-[#1A3C34] transition-all duration-200 hover:bg-[#F0F7F4] hover:shadow-lg active:scale-[0.98]">
               Create Your Secure Account
             </button>
           </div>
@@ -364,77 +283,48 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[1200px] flex flex-col md:flex-row items-start justify-between gap-8 text-sm font-medium">
           <div className="space-y-3 max-w-xs">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[#2D7A5F] rounded-lg flex items-center justify-center text-white font-bold text-sm">
-                W
-              </div>
-              <span className="text-base font-black tracking-tight bg-gradient-to-r from-[#1A3C34] to-[#2D7A5F] bg-clip-text text-transparent">
-                WellNest
-              </span>
+              <div className="w-8 h-8 bg-[#2D7A5F] rounded-lg flex items-center justify-center text-white font-bold text-sm">W</div>
+              <span className="text-base font-black tracking-tight bg-gradient-to-r from-[#1A3C34] to-[#2D7A5F] bg-clip-text text-transparent">WellNest</span>
             </div>
-            <p className="text-xs text-[#4A7A6A]">
-              Decentralized healthcare connection software routing local
-              services with zero processing friction.
-            </p>
+            <p className="text-xs text-[#4A7A6A]">Decentralized healthcare connection software routing local services with zero processing friction.</p>
           </div>
 
           <div className="flex flex-wrap gap-12 sm:gap-24">
             <div className="space-y-3">
-              <h4 className="text-xs font-black uppercase tracking-wider text-[#1A3C34]">
-                Platform
-              </h4>
+              <h4 className="text-xs font-black uppercase tracking-wider text-[#1A3C34]">Platform</h4>
               <ul className="space-y-2 text-xs text-[#4A7A6A]">
                 <li>
-                  <button
-                    onClick={() => navigate("/doctors")}
-                    className="hover:text-[#2D7A5F] transition-colors"
-                  >
+                  <button onClick={() => navigate("/doctors")} className="hover:text-[#2D7A5F] transition-colors">
                     Find Doctors
                   </button>
                 </li>
                 <li>
-                  <button
-                    onClick={() => navigate("/ngos")}
-                    className="hover:text-[#2D7A5F] transition-colors"
-                  >
+                  <button onClick={() => navigate("/ngos")} className="hover:text-[#2D7A5F] transition-colors">
                     NGO Directory
                   </button>
                 </li>
                 <li>
-                  <button
-                    onClick={() => navigate("/healthworkers")}
-                    className="hover:text-[#2D7A5F] transition-colors"
-                  >
+                  <button onClick={() => navigate("/healthworkers")} className="hover:text-[#2D7A5F] transition-colors">
                     Health Workers
                   </button>
                 </li>
                 <li>
-                  <button
-                    onClick={() => navigate("/blogs")}
-                    className="hover:text-[#2D7A5F] transition-colors"
-                  >
+                  <button onClick={() => navigate("/blogs")} className="hover:text-[#2D7A5F] transition-colors">
                     Health Blogs
                   </button>
                 </li>
               </ul>
             </div>
             <div className="space-y-3">
-              <h4 className="text-xs font-black uppercase tracking-wider text-[#1A3C34]">
-                Gateway
-              </h4>
+              <h4 className="text-xs font-black uppercase tracking-wider text-[#1A3C34]">Gateway</h4>
               <ul className="space-y-2 text-xs text-[#4A7A6A]">
                 <li>
-                  <button
-                    onClick={() => navigate("/signup")}
-                    className="hover:text-[#2D7A5F] transition-colors"
-                  >
+                  <button onClick={() => navigate("/signup")} className="hover:text-[#2D7A5F] transition-colors">
                     Sign Up Keys
                   </button>
                 </li>
                 <li>
-                  <button
-                    onClick={() => navigate("/signin")}
-                    className="hover:text-[#2D7A5F] transition-colors"
-                  >
+                  <button onClick={() => navigate("/signin")} className="hover:text-[#2D7A5F] transition-colors">
                     Sign In Workspace
                   </button>
                 </li>
@@ -444,7 +334,7 @@ export default function LandingPage() {
         </div>
 
         <div className="mx-auto max-w-[1200px] border-t border-[#F0F7F4] mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-[#4A7A6A]/60 font-bold tracking-wide">
-          <p>&copy; 2026 BloomHeal Core Systems. All rights secured.</p>
+          <p>&copy; 2026 WellNest Core Systems. All rights secured.</p>
           <p className="uppercase">Operational Node status: Online</p>
         </div>
       </footer>

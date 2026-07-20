@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Simple WebRTC Test</title>
+
+<style>
+body{
+    font-family:Arial;
+    margin:30px;
+}
+
+video{
+    width:300px;
+    border:1px solid black;
+    margin:10px;
+}
+
+button{
+    margin:5px;
+    padding:10px;
+}
+</style>
+
+</head>
+<body>
+
+<h2>WebRTC Test</h2>
+
+<button onclick="startCamera()">Start Camera</button>
+<button onclick="call()">Call</button>
+
+<br><br>
+
+<video id="localVideo" autoplay playsinline muted></video>
+<video id="remoteVideo" autoplay playsinline></video>
+
+<script>
+
+const ws = new WebSocket("ws://localhost:5000/ws");
+
+let localStream;
+let pc;
+
+const configuration = {
+    iceServers:[
+        {
+            urls:"stun:stun.l.google.com:19302"
+        }
+    ]
+};
+
+ws.onmessage = async(event)=>{
+
+    const msg = JSON.parse(event.data);
+
+    switch(msg.type){
+
+        case "offer":
+
+            await createPeer();
+
+            await pc.setRemoteDescription(msg.offer);
+
+            const answer = await pc.createAnswer();
+
+            await pc.setLocalDescription(answer);
+
+            ws.send(JSON.stringify({
+                type:"answer",
+                answer:answer
+            }));
+
+            break;
+
+        case "answer":
+
+            await pc.setRemoteDescription(msg.answer);
+
+            break;
+
+        case "candidate":
+
+            if(pc){
+                await pc.addIceCandidate(msg.candidate);
+            }
+
+            break;
+
+    }
+
+};
+
+async function startCamera(){
+
+    localStream = await navigator.mediaDevices.getUserMedia({
+        video:true,
+        audio:true
+    });
+
+    document.getElementById("localVideo").srcObject = localStream;
+
+}
+
+async function createPeer(){
+
+    pc = new RTCPeerConnection(configuration);
+
+    localStream.getTracks().forEach(track=>{
+        pc.addTrack(track,localStream);
+    });
+
+    pc.ontrack=(event)=>{
+
+        document.getElementById("remoteVideo").srcObject=event.streams[0];
+
+    };
+
+    pc.onicecandidate=(event)=>{
+
+        if(event.candidate){
+
+            ws.send(JSON.stringify({
+
+                type:"candidate",
+                candidate:event.candidate
+
+            }));
+
+        }
+
+    };
+
+}
+
+async function call(){
+
+    await createPeer();
+
+    const offer = await pc.createOffer();
+
+    await pc.setLocalDescription(offer);
+
+    ws.send(JSON.stringify({
+
+        type:"offer",
+        offer:offer
+
+    }));
+
+}
+
+</script>
+
+</body>
+</html>
