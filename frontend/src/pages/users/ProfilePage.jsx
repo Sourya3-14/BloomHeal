@@ -309,7 +309,7 @@ export default function ProfilePage() {
 
                   {tokenBalance !== undefined && (
                     <div className="flex justify-between items-center p-3 rounded-xl border border-[#E8F5F0] bg-[#FDFEFF]">
-                      <span className="text-xs font-bold text-[#4A7A6A]">WellNest Liquidity (WNT)</span>
+                      <span className="text-xs font-bold text-[#4A7A6A]">BloomHeal Liquidity (WNT)</span>
                       <span className="text-xs font-black text-[#2D7A5F]">{fmt(tokenBalance)} WNT</span>
                     </div>
                   )}

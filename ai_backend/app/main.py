@@ -3,7 +3,7 @@ from .routes import router
 from .rag import RAGStore
 from .agent import set_rag_store
 
-app = FastAPI(title="Healthcare Chatbot Backend")
+app = FastAPI(title="BloomHeal Healthcare AI Assistant Backend")
 
 #rag is started only during startup so add files , dele the indexes and once again start rag to generate embeddings
 _rag = RAGStore()

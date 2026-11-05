@@ -1,1 +1,0 @@
-backend for managing authentication and user data store 

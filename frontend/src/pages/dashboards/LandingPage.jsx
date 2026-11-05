@@ -98,7 +98,7 @@ export default function LandingPage() {
               Unified Ecosystem
             </div>
             <h1 className="text-4xl font-extrabold sm:text-6xl tracking-tight leading-tight">
-              Welcome to <span className="bg-gradient-to-r from-[#1A3C34] via-[#2D7A5F] to-[#4CAF82] bg-clip-text text-transparent">WellNest</span>
+              Welcome to <span className="bg-gradient-to-r from-[#1A3C34] via-[#2D7A5F] to-[#4CAF82] bg-clip-text text-transparent">BloomHeal</span>
             </h1>
             <p className="text-base sm:text-lg text-[#4A7A6A] font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed">
               A comprehensive healthcare ecosystem connecting patients, healthcare professionals, and community support networks for optimized medical outcomes.
@@ -132,7 +132,7 @@ export default function LandingPage() {
       {/* ── 2. FEATURES GRID SECTION ── */}
       <section className="py-20 px-4 sm:px-6 lg:px-8 mx-auto max-w-[1200px]">
         <div className="text-center space-y-3 mb-16">
-          <h2 className="text-3xl font-black tracking-tight">Why Choose WellNest?</h2>
+          <h2 className="text-3xl font-black tracking-tight">Why Choose BloomHeal?</h2>
           <p className="text-sm sm:text-base text-[#4A7A6A] font-medium max-w-xl mx-auto">
             Breaking down communication siloes to deliver decentralized medicine and local emergency tracking infrastructure.
           </p>
@@ -236,13 +236,13 @@ export default function LandingPage() {
       <section className="py-20 px-4 sm:px-6 lg:px-8 mx-auto max-w-[1200px]">
         <div className="bg-white rounded-3xl border border-[#E8F5F0] p-8 sm:p-12 shadow-sm grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-7 space-y-6">
-            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">About WellNest</h2>
+            <h2 className="text-2xl sm:text-3xl font-black tracking-tight">About BloomHeal</h2>
             <p className="text-xs sm:text-sm leading-relaxed text-[#4A7A6A] font-medium">
-              WellNest is an architectural health network framework designed explicitly to link active practitioners directly to community patient nodes. We reduce systemic routing overhead so
+              BloomHeal is an architectural health network framework designed explicitly to link active practitioners directly to community patient nodes. We reduce systemic routing overhead so
               immediate local responses take precedence during regional operational stresses.
             </p>
             <p className="text-xs sm:text-sm leading-relaxed text-[#4A7A6A] font-medium">
-              Whether searching for authorized emergency mobile care vectors, verifying non-profit organizational camp maps, or executing standard symptom modeling profiles, WellNest ensures complete
+              Whether searching for authorized emergency mobile care vectors, verifying non-profit organizational camp maps, or executing standard symptom modeling profiles, BloomHeal ensures complete
               operational parity.
             </p>
           </div>
@@ -283,8 +283,8 @@ export default function LandingPage() {
         <div className="mx-auto max-w-[1200px] flex flex-col md:flex-row items-start justify-between gap-8 text-sm font-medium">
           <div className="space-y-3 max-w-xs">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-[#2D7A5F] rounded-lg flex items-center justify-center text-white font-bold text-sm">W</div>
-              <span className="text-base font-black tracking-tight bg-gradient-to-r from-[#1A3C34] to-[#2D7A5F] bg-clip-text text-transparent">WellNest</span>
+              <div className="w-8 h-8 bg-[#2D7A5F] rounded-lg flex items-center justify-center text-white font-bold text-sm">B</div>
+              <span className="text-base font-black tracking-tight bg-gradient-to-r from-[#1A3C34] to-[#2D7A5F] bg-clip-text text-transparent">BloomHeal</span>
             </div>
             <p className="text-xs text-[#4A7A6A]">Decentralized healthcare connection software routing local services with zero processing friction.</p>
           </div>
@@ -334,7 +334,7 @@ export default function LandingPage() {
         </div>
 
         <div className="mx-auto max-w-[1200px] border-t border-[#F0F7F4] mt-10 pt-6 flex flex-col sm:flex-row items-center justify-between text-[11px] text-[#4A7A6A]/60 font-bold tracking-wide">
-          <p>&copy; 2026 WellNest Core Systems. All rights secured.</p>
+          <p>&copy; 2026 BloomHeal Core Systems. All rights secured.</p>
           <p className="uppercase">Operational Node status: Online</p>
         </div>
       </footer>

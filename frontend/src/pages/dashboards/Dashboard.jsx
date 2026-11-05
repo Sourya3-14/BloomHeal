@@ -103,7 +103,7 @@ export default function Dashboard() {
             <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-[#C8E6D8]">Welcome back</p>
             <h2 className="text-3xl font-extrabold text-white sm:text-5xl">Hello, {user?.firstName || "Ayush"}!</h2>
             <p className="mx-auto mt-4 max-w-2xl text-base leading-relaxed text-white/90 px-4">
-              Welcome to your WellNest dashboard. Access healthcare services, manage your profile, and stay connected with trusted healthcare providers.
+              Welcome to your BloomHeal dashboard. Access healthcare services, manage your profile, and stay connected with trusted healthcare providers.
             </p>
             <div className="mt-6 inline-flex items-center rounded-full bg-white/10 px-5 py-1.5 text-xs font-semibold uppercase tracking-wider text-white backdrop-blur-sm border border-white/20">
               <span className="mr-1.5 h-2 w-2 rounded-full bg-[#4CAF82] animate-pulse"></span>

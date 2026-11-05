@@ -143,7 +143,7 @@ export default function SignUp() {
             <UserPlus size={22} />
           </div>
           <h1 className="text-2xl font-black tracking-tight text-[#1A3C34] sm:text-3xl">Create Account</h1>
-          <p className="text-xs sm:text-sm font-medium text-[#4A7A6A]">Join the decentralized WellNest network community.</p>
+          <p className="text-xs sm:text-sm font-medium text-[#4A7A6A]">Join the decentralized BloomHeal network community.</p>
         </div>
 
         {/* Universal Action Error Banner */}

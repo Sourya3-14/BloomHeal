@@ -57,7 +57,7 @@ function AIChatPage() {
     setTimeout(() => setCopiedId(null), 2000);
   };
 
-  // WellNest custom markdown system components mapped dynamically via Tailwind
+  // BloomHeal custom markdown system components mapped dynamically via Tailwind
   const markdownComponents = {
     code({ node, inline, className, children, ...props }) {
       const match = /language-(\w+)/.exec(className || "");

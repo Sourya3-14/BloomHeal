@@ -49,7 +49,7 @@ tools = [rag_tool, web_tool]
 
 
 SYSTEM_PROMPT = (
-    "You are an advanced healthcare assistant. Provide clear, evidence-aware guidance.\n"
+    "You are BloomHeal's advanced healthcare assistant. Provide clear, evidence-aware guidance.\n"
     "Always be cautious: do not diagnose definitively; suggest differentials and when to seek urgent care.\n"
     "Use the provided context (conversation history, RAG chunks, and web snippets) faithfully. Cite sources.\n"
     "If unsure, say so and recommend consulting a licensed clinician.\n"

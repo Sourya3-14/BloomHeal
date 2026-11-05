@@ -1,5 +1,5 @@
 {
-  "name": "wellnest-backend",
+  "name": "bloomheal-backend",
   "version": "0.1.0",
   "type": "module",
   "main": "src/app.js",

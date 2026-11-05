@@ -70,7 +70,7 @@ export default function Navbar({ onLogout }) {
           <Stethoscope size={20} color="white" />
         </div>
         <h2 className="text-2xl font-extrabold tracking-tight bg-gradient-to-r from-[#1A3C34] to-[#2D7A5F] bg-clip-text text-transparent transition-transform duration-300 group-hover:scale-[1.02]">
-          WellNest
+          BloomHeal
         </h2>
       </div>
 
