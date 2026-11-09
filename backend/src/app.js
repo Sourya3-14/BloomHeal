@@ -1,10 +1,12 @@
-import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
+
+import "dotenv/config";
+
 import { validationResult } from "express-validator";
+import session from "express-session";
 
 import { connectDB } from "./config/db.js";
 
@@ -21,9 +23,10 @@ import healthworkerRoutes from "./routes/healthworker.routes.js";
 import patientRoutes from "./routes/patient.routes.js";
 import appointmentRouter from "./routes/appointmentRouter.js";
 import chatRouter from "./routes/chat.routes.js";
-import { errorHandler } from "./middlewares/errorHandler.js";
+import otpRoutes from "./routes/otp.routes.js";
+import googleRoutes from "./routes/google.routes.js";
 
-dotenv.config();
+import { errorHandler } from "./middlewares/errorHandler.js";
 
 const app = express();
 const server = http.createServer(app);
@@ -37,6 +40,23 @@ app.use(
 
 app.use(express.json());
 app.use(morgan("dev"));
+
+app.set("trust proxy", 1);
+
+app.use(
+  session({
+    name: "app.sid",
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 10 * 60 * 1000,
+    },
+  }),
+);
 
 // Validation middleware
 app.use((req, res, next) => {
@@ -55,6 +75,7 @@ app.use((req, res, next) => {
 
 // Routes
 app.use("/auth", authRoutes);
+app.use("/otp", otpRoutes);
 app.use("/profile", profileRoutes);
 app.use("/", publicRoutes);
 
@@ -63,6 +84,7 @@ app.use("/doctor", doctorRoutes);
 app.use("/healthworker", healthworkerRoutes);
 app.use("/patient", patientRoutes);
 app.use("/appointment", appointmentRouter);
+app.use("/api/google", googleRoutes);
 app.use("/chat", chatRouter);
 
 // Health check
@@ -78,7 +100,7 @@ app.use(errorHandler);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.CLIENT_ORIGIN,
     credentials: true,
   },
 });
