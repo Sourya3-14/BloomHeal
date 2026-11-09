@@ -1,5 +1,4 @@
-
-from typing import List, Dict, Optional
+from typing import Optional
 import re
 
 from langgraph.prebuilt import create_react_agent
@@ -71,8 +70,8 @@ agent = create_react_agent(
 
 
 
-def _extract_citations_from_messages(messages: List) -> List[Dict]:
-    citations: List[Dict] = []
+def _extract_citations_from_messages(messages: list) -> list[dict]:
+    citations: list[dict] = []
     seen = set()
 
     rag_pattern = re.compile(r"\[RAG\]\s*Source:\s*([^\n]+)")
@@ -102,12 +101,12 @@ def _extract_citations_from_messages(messages: List) -> List[Dict]:
 
 
 
-def run_agent(query: str, memory_context: List[Dict[str, str]]) -> Dict:
+def run_agent(query: str, memory_context: list[dict[str, str]]) -> dict:
     """
     Executes the ReAct agent with query + memory context.
     Returns {"reply": str, "citations": List[Dict]}
     """
-    msgs: List[Dict[str, str]] = []
+    msgs: list[dict[str, str]] = []
 
  
     msgs.append({"role": "system", "content": SYSTEM_PROMPT})

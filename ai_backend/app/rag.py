@@ -3,11 +3,10 @@ import glob
 import pickle
 import faiss
 import numpy as np
-from typing import List, Dict, Tuple
 from .config import DATA_DIR, VECTOR_DIR, FAISS_PATH, METADATA_PATH, CHUNK_SIZE, CHUNK_OVERLAP, TOP_K
 from .tools.gemini_tool import embed_texts
 
-def _read_txt_files() -> List[Tuple[str, str]]:
+def _read_txt_files() -> list[tuple[str, str]]:
     files = glob.glob(os.path.join(DATA_DIR, "*.txt"))
     data = []
     for path in files:
@@ -15,7 +14,7 @@ def _read_txt_files() -> List[Tuple[str, str]]:
             data.append((os.path.basename(path), f.read()))
     return data
 
-def _chunk_text(text: str, size: int, overlap: int) -> List[str]:
+def _chunk_text(text: str, size: int, overlap: int) -> list[str]:
     """
     Simple whitespace-based token approximation to keep implementation minimal.
     """
@@ -33,7 +32,7 @@ class RAGStore:
     def __init__(self):
         os.makedirs(VECTOR_DIR, exist_ok=True)
         self.index = None  # faiss.IndexFlatL2
-        self.metadata: List[Dict] = []
+        self.metadata: list[dict] = []
 
     def load_or_build(self):
         if os.path.exists(FAISS_PATH) and os.path.exists(METADATA_PATH):
@@ -81,7 +80,7 @@ class RAGStore:
             self.metadata = pickle.load(f)
             print(f"Loaded metadata for {len(self.metadata)} chunks.")
 
-    def retrieve(self, query: str, top_k: int = TOP_K) -> List[Dict]:
+    def retrieve(self, query: str, top_k: int = TOP_K) -> list[dict]:
         """
         Return top-k results with their text + source for citation.
         """

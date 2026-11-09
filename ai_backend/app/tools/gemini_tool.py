@@ -1,10 +1,10 @@
 import google.generativeai as genai
-from typing import List, Dict
+# from typing import List, Dict
 from ..config import GEMINI_API_KEY, GEMINI_MODEL, EMBEDDING_MODEL
 
 genai.configure(api_key=GEMINI_API_KEY)
 
-def generate_response(system_prompt: str, messages: List[Dict[str, str]]) -> str:
+def generate_response(system_prompt: str, messages: list[dict[str, str]]) -> str:
     """
     messages: list of {"role": "user"|"assistant"|"system", "content": "..."}
     We'll pass system separately and keep chat strictly user/assistant for the model call.
@@ -15,7 +15,7 @@ def generate_response(system_prompt: str, messages: List[Dict[str, str]]) -> str
     resp = model.generate_content(chat_history)
     return resp.text or ""
 
-def summarize_conversation(existing_summary: str, messages: List[Dict[str, str]]) -> str:
+def summarize_conversation(existing_summary: str, messages: list[dict[str, str]]) -> str:
     """
     Summarize entire conversation to a compact brief, suitable for retrieval in future turns.
     """
@@ -33,12 +33,12 @@ def summarize_conversation(existing_summary: str, messages: List[Dict[str, str]]
     resp = model.generate_content(prompt)
     return (resp.text or "").strip()
 
-def embed_texts(texts: List[str]) -> List[List[float]]:
+def embed_texts(texts: list[str]) -> list[list[float]]:
     """
     Returns a list of embedding vectors for the given texts using Gemini embeddings.
     """
     # Batch embed using embed_content
-    vectors: List[List[float]] = []
+    vectors: list[list[float]] = []
     for t in texts:
         e = genai.embed_content(model=EMBEDDING_MODEL, content=t)
         vectors.append(e["embedding"])

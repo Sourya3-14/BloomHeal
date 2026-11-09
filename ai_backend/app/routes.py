@@ -11,13 +11,13 @@ COOKIE_NAME = "guest_session_id"
 
 @router.get("/")
 def giriraj():
-    return {"message": "Hi i am giriraj!"}
+    return {"message": "Hi I am The core intelligence behind BloomHeal!"}
 
 @router.get("/health")
 def health():
     return {"status": "ok"}
-from typing import Optional, Tuple
-def _extract_identity(authorization: Optional[str]) -> Tuple[bool, str]:
+
+def _extract_identity(authorization: Optional[str]) -> tuple[bool, str]:
     """
     Returns (signed_in, key). For simplicity:
     - If Authorization: Bearer <token> present -> signed_in=True, key=<token>

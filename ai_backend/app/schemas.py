@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import Optional
 
 class ChatRequest(BaseModel):
     message: str
@@ -10,4 +10,4 @@ class Citation(BaseModel):
 
 class ChatResponse(BaseModel):
     reply: str
-    citations: List[Citation] = []
+    citations: list[Citation] = []

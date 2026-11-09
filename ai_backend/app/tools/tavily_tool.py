@@ -1,10 +1,9 @@
-from typing import List, Dict
 from tavily import TavilyClient
 from ..config import TAVILY_API_KEY
 
 _client = TavilyClient(api_key=TAVILY_API_KEY) if TAVILY_API_KEY else None
 
-def web_search(query: str, max_results: int = 5) -> List[Dict]:
+def web_search(query: str, max_results: int = 5) -> list[dict]:
     """
     Returns list of dicts: {"title": str, "url": str, "content": str}
     If API key is missing, returns empty list.

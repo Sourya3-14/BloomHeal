@@ -1,26 +1,25 @@
 import time
-from typing import Dict, List
 from .db import conversations
 from .config import SUMMARY_INTERVAL, KEEP_LAST_N
 from .tools.gemini_tool import summarize_conversation
 
 #{session_id: {"summary": str, "messages": [..], "turns": int, "updated_at": float}}
-_GUEST_MEM: Dict[str, Dict] = {}
+_GUEST_MEM: dict[str, dict] = {}
 
 
 def _now() -> float:
     return time.time()
 
 
-def _empty_doc() -> Dict:
+def _empty_doc() -> dict:
     return {"summary": "", "messages": [], "turns": 0, "updated_at": _now()}
 
 
-def _count_user_turns(messages: List[Dict[str, str]]) -> int:
+def _count_user_turns(messages: list[dict[str, str]]) -> int:
     return sum(1 for m in messages if m["role"] == "user")
 
 
-def load_memory(user_key: str, signed_in: bool) -> Dict:
+def load_memory(user_key: str, signed_in: bool) -> dict:
     """
     Returns a conversation doc.
     For signed-in users → load from Mongo, create one if missing.
@@ -47,7 +46,7 @@ def load_memory(user_key: str, signed_in: bool) -> Dict:
     return _GUEST_MEM[user_key]
 
 
-def save_memory(user_key: str, signed_in: bool, doc: Dict) -> None:
+def save_memory(user_key: str, signed_in: bool, doc: dict) -> None:
     doc["updated_at"] = _now()
     if signed_in:
         conversations.update_one(
@@ -66,12 +65,12 @@ def save_memory(user_key: str, signed_in: bool, doc: Dict) -> None:
         _GUEST_MEM[user_key] = doc
 
 
-def build_context(doc: Dict) -> List[Dict[str, str]]:
+def build_context(doc: dict) -> list[dict[str, str]]:
     """
     Returns a list of messages to feed the agent: [ {"role","content"}, ... ]
     Includes summary (system preface) + actual history.
     """
-    messages: List[Dict[str, str]] = []
+    messages: list[dict[str, str]] = []
     if doc.get("summary"):
         messages.append(
             {"role": "system", "content": f"Conversation summary:\n{doc['summary']}"}
@@ -80,7 +79,7 @@ def build_context(doc: Dict) -> List[Dict[str, str]]:
     return messages
 
 
-def update_on_interaction(user_key: str, signed_in: bool, user_msg: str, assistant_msg: str) -> Dict:
+def update_on_interaction(user_key: str, signed_in: bool, user_msg: str, assistant_msg: str) -> dict:
     """
     Append user+assistant turns, summarize every SUMMARY_INTERVAL turns,
     keep only summary + last KEEP_LAST_N turns.
@@ -98,7 +97,7 @@ def update_on_interaction(user_key: str, signed_in: bool, user_msg: str, assista
         new_summary = summarize_conversation(doc.get("summary", ""), doc["messages"])
 
         # keep only last N pairs
-        pairs: List[Dict[str, str]] = []
+        pairs: list[dict[str, str]] = []
         i = len(doc["messages"]) - 1
         collected = 0
         while i >= 1 and collected < KEEP_LAST_N:
