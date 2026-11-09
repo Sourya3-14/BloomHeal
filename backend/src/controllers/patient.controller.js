@@ -1,4 +1,6 @@
 import PatientProfile from "../models/PatientProfile.js";
+import Appointments from "../models/Appointments.js";
+import DoctorProfile from "../models/DoctorProfile.js";
 
 // POST or PUT /patient/profile → create or update
 export const upsertPatientProfile = async (req, res) => {
@@ -43,5 +45,50 @@ export const getMyPatientProfile = async (req, res) => {
   } catch (err) {
     console.error("Error fetching patient profile:", err);
     return res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const getMeetingAccess = async (req, res, next) => {
+  try {
+    const appointment = await Appointments.findById(req.params.id).select(
+      "+meetUrl",
+    );
+
+    if (!appointment) {
+      return res.status(404).json({ message: "Not found" });
+    }
+
+    const userId = req.user.id;
+
+    const [patientProfile, doctorProfile] = await Promise.all([
+      PatientProfile.findOne({ user: userId }).select("_id"),
+      DoctorProfile.findOne({ user: userId }).select("_id"),
+    ]);
+    const isPatient =
+      patientProfile &&
+      appointment.patientId.toString() === patientProfile._id.toString();
+    const isDoctor =
+      doctorProfile &&
+      appointment.doctorId.toString() === doctorProfile._id.toString();
+
+    if (!isPatient && !isDoctor) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    if (
+      !["accepted", "scheduled"].includes(appointment.status) ||
+      appointment.meetingStatus !== "READY" ||
+      !appointment.meetUrl
+    ) {
+      return res.status(409).json({
+        message: "Meeting is not available",
+      });
+    }
+
+    return res.json({
+      meetUrl: appointment.meetUrl,
+    });
+  } catch (error) {
+    next(error);
   }
 };

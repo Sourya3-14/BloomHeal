@@ -1,15 +1,63 @@
 import { Router } from "express";
 import Appointment from "../models/Appointments.js"; // Adjust path as needed
+import DoctorProfile from "../models/DoctorProfile.js";
+import PatientProfile from "../models/PatientProfile.js";
+import {
+  sendAppointmentBookedNotifications,
+  sendAppointmentAcceptedNotifications,
+  sendAppointmentTimeChangedNotifications,
+} from "../services/notification_service.js";
 import { authRequired } from "../middlewares/auth.js";
 import { restrictRole } from "../middlewares/restrict.js";
+import { createGoogleMeet } from "../services/google_callender.service.js";
 
 const router = Router();
 
 router.use(authRequired);
 
+async function getDoctorAndPatient(doctorId, patientId) {
+  try {
+    const [docProf, patProf] = await Promise.all([
+      DoctorProfile.findById(doctorId).populate(
+        "user",
+        "email firstName lastName",
+      ),
+      PatientProfile.findById(patientId).populate(
+        "user",
+        "email firstName lastName",
+      ),
+    ]);
+
+    const doctor = {
+      name:
+        docProf?.name ||
+        (docProf?.user
+          ? `${docProf.user.firstName} ${docProf.user.lastName}`.trim()
+          : "Doctor"),
+      email: docProf?.user?.email,
+    };
+
+    const patient = {
+      name:
+        patProf?.name ||
+        (patProf?.user
+          ? `${patProf.user.firstName} ${patProf.user.lastName}`.trim()
+          : "Patient"),
+      email: patProf?.user?.email,
+    };
+
+    return { doctor, patient };
+  } catch (err) {
+    console.error(
+      "Failed to fetch doctor/patient details for notification:",
+      err.message,
+    );
+    return { doctor: null, patient: null };
+  }
+}
+
 // Book a new appointment
-router.post("/book", async (req, res, next) => {
-    console.log("set is called")
+router.post("/book", authRequired, async (req, res, next) => {
   try {
     const { doctorId, patientId, requestedTime, reason } = req.body;
 
@@ -21,10 +69,21 @@ router.post("/book", async (req, res, next) => {
       });
     }
 
+    const appointmentTime = new Date(requestedTime);
+    if (
+      Number.isNaN(appointmentTime.getTime()) ||
+      appointmentTime <= new Date()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Requested time must be a valid future date",
+      });
+    }
+
     // Check if the requested time slot is already taken
     const existingAppointment = await Appointment.findOne({
       doctorId,
-      requestedTime: new Date(requestedTime),
+      requestedTime: appointmentTime,
     });
 
     if (existingAppointment) {
@@ -37,10 +96,26 @@ router.post("/book", async (req, res, next) => {
     const newAppointment = await Appointment.create({
       doctorId,
       patientId,
-      requestedTime: new Date(requestedTime),
+      requestedTime: appointmentTime,
       reason,
       status: "pending",
     });
+
+    // Send notifications to Doctor and Patient asynchronously
+    getDoctorAndPatient(doctorId, patientId)
+      .then(({ doctor, patient }) => {
+        if (doctor && patient) {
+          sendAppointmentBookedNotifications({
+            doctor,
+            patient,
+            requestedTime,
+            reason,
+          });
+        }
+      })
+      .catch((err) =>
+        console.error("Error dispatching booking notification:", err.message),
+      );
 
     res.status(201).json({
       success: true,
@@ -52,10 +127,10 @@ router.post("/book", async (req, res, next) => {
   }
 });
 
-// Accept an appointment
-router.patch("/accept",restrictRole(["doctor"]), async (req, res, next) => {
+async function acceptAppointment(req, res, next) {
   try {
-    const { appointmentId, scheduledTime, notes } = req.body;
+    const appointmentId = req.params.id || req.body.appointmentId;
+    const { scheduledTime, notes } = req.body;
 
     if (!appointmentId) {
       return res.status(400).json({
@@ -65,11 +140,21 @@ router.patch("/accept",restrictRole(["doctor"]), async (req, res, next) => {
     }
 
     const appointment = await Appointment.findById(appointmentId);
-
     if (!appointment) {
       return res.status(404).json({
         success: false,
         message: "Appointment not found",
+      });
+    }
+
+    const doctorProfile = await DoctorProfile.findOne({
+      _id: appointment.doctorId,
+      user: req.user.id,
+    }).select("_id");
+    if (!doctorProfile) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized",
       });
     }
 
@@ -80,44 +165,83 @@ router.patch("/accept",restrictRole(["doctor"]), async (req, res, next) => {
       });
     }
 
-    // Check if scheduled time conflicts with existing appointments
-    if (scheduledTime) {
-      const conflictingAppointment = await Appointment.findOne({
-        doctorId: appointment.doctorId,
-        scheduledTime: new Date(scheduledTime),
-        status: { $in: ["accepted", "scheduled"] },
-        _id: { $ne: appointmentId },
+    const appointmentTime = new Date(
+      scheduledTime || appointment.requestedTime,
+    );
+    if (
+      Number.isNaN(appointmentTime.getTime()) ||
+      appointmentTime <= new Date()
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Scheduled time must be a valid future date",
       });
+    }
 
-      if (conflictingAppointment) {
-        return res.status(409).json({
-          success: false,
-          message: "The scheduled time conflicts with another appointment",
-        });
-      }
+    const conflictingAppointment = await Appointment.findOne({
+      doctorId: appointment.doctorId,
+      scheduledTime: appointmentTime,
+      status: { $in: ["accepted", "scheduled"] },
+      _id: { $ne: appointmentId },
+    });
+    if (conflictingAppointment) {
+      return res.status(409).json({
+        success: false,
+        message: "The scheduled time conflicts with another appointment",
+      });
     }
 
     appointment.status = "accepted";
-    appointment.scheduledTime = scheduledTime
-      ? new Date(scheduledTime)
-      : appointment.requestedTime;
+    appointment.scheduledTime = appointmentTime;
+    appointment.scheduledAt = appointmentTime;
     if (notes) appointment.notes = notes;
-
     await appointment.save();
 
-    res.json({
+    getDoctorAndPatient(appointment.doctorId, appointment.patientId)
+      .then(({ doctor, patient }) => {
+        if (doctor && patient) {
+          sendAppointmentAcceptedNotifications({
+            doctor,
+            patient,
+            scheduledTime: appointment.scheduledTime,
+            notes: appointment.notes,
+          });
+        }
+      })
+      .catch((err) =>
+        console.error(
+          "Error dispatching acceptance notification:",
+          err.message,
+        ),
+      );
+
+    let meetUrl = null;
+    try {
+      meetUrl = await createGoogleMeet(appointment.doctorId, appointment);
+    } catch (error) {
+      console.error("Meet creation error:", error);
+    }
+
+    return res.status(meetUrl ? 200 : 202).json({
       success: true,
-      message: "Appointment accepted successfully",
+      message: meetUrl
+        ? "Appointment accepted and meeting scheduled"
+        : "Appointment accepted. Meeting link is unavailable or still being generated.",
+      appointmentId: appointment._id,
+      meetingStatus: appointment.meetingStatus,
       data: appointment,
     });
   } catch (error) {
     next(error);
   }
-});
+}
+
+router.patch("/accept", restrictRole(["doctor"]), acceptAppointment);
 
 // Change appointment time
 router.patch(
   "/change-time",
+  authRequired,
   restrictRole(["doctor"]),
   async (req, res, next) => {
     try {
@@ -175,6 +299,26 @@ router.patch(
 
       await appointment.save();
 
+      // Send notifications to Doctor and Patient asynchronously
+      getDoctorAndPatient(appointment.doctorId, appointment.patientId)
+        .then(({ doctor, patient }) => {
+          if (doctor && patient) {
+            sendAppointmentTimeChangedNotifications({
+              doctor,
+              patient,
+              newTime,
+              status: appointment.status,
+              notes: appointment.notes,
+            });
+          }
+        })
+        .catch((err) =>
+          console.error(
+            "Error dispatching change-time notification:",
+            err.message,
+          ),
+        );
+
       res.json({
         success: true,
         message: "Appointment time changed successfully",
@@ -183,12 +327,13 @@ router.patch(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 // Get doctor's appointments (should be GET method)
 router.get(
   "/get-doctor-appointment",
+  authRequired,
   restrictRole(["doctor"]),
   async (req, res, next) => {
     try {
@@ -228,11 +373,11 @@ router.get(
     } catch (error) {
       next(error);
     }
-  }
+  },
 );
 
 // Get patient's appointments (should be GET method)
-router.get("/get-patient-appointment", async (req, res, next) => {
+router.get("/get-patient-appointment", authRequired, async (req, res, next) => {
   try {
     const { patientId, status, page = 1, limit = 10 } = req.query;
 
@@ -275,7 +420,7 @@ router.get("/get-patient-appointment", async (req, res, next) => {
 // Add this route to your appointmentRouter.js file
 
 // Cancel an appointment
-router.patch("/cancel", async (req, res, next) => {
+router.patch("/cancel", authRequired, async (req, res, next) => {
   try {
     const { appointmentId, reason } = req.body;
 
@@ -328,5 +473,7 @@ router.patch("/cancel", async (req, res, next) => {
     next(error);
   }
 });
+
+router.post("/:id/accept", restrictRole(["doctor"]), acceptAppointment);
 
 export default router;
