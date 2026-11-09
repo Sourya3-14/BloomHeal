@@ -3,9 +3,13 @@ const express = require("express");
 const PCT = require("../model/participants.js");
 const DNT = require("../model/Donaters.js");
 const ORG = require("../model/campOrganisers.js");
+const USR = require("../model/authUsers.js");
 
 const { authMiddleware } = require("../middlewares/auth.js");
 const { setUserReward } = require("../contractService/Token_contract.js");
+const {
+  sendEventParticipationVerifiedNotification,
+} = require("../services/notification_service.js");
 
 const router = express.Router();
 
@@ -110,6 +114,41 @@ router.post("/verify/:participantId", authMiddleware, async (req, res) => {
 
     walletDoc.reward = (walletDoc.reward || 0) + rewardAmount;
     await walletDoc.save();
+
+    // Send event participation verification notification asynchronously
+    (async () => {
+      try {
+        const [userDoc, eventDoc] = await Promise.all([
+          USR.findById(participant.userId),
+          ORG.findById(participant.eventId),
+        ]);
+
+        if (userDoc?.email) {
+          const participantName =
+            `${userDoc.firstName || ""} ${userDoc.lastName || ""}`.trim() ||
+            "Participant";
+          const eventName =
+            eventDoc?.eventType === "Other"
+              ? eventDoc?.customEventName || "Community Event"
+              : eventDoc?.eventType || "Community Health Event";
+
+          await sendEventParticipationVerifiedNotification({
+            participantEmail: userDoc.email,
+            participantName,
+            eventName,
+            eventDate: eventDoc?.date,
+            eventLocation: eventDoc?.location,
+            rewardAmount,
+            walletAddress: walletDoc?.walletAddress || null,
+          });
+        }
+      } catch (notifErr) {
+        console.error(
+          "Failed to dispatch event participation notification:",
+          notifErr.message
+        );
+      }
+    })();
 
     res.status(200).json({
       success: true,

@@ -15,6 +15,9 @@ const {
   createDataHash,
 } = require("../contractService/Outbreak_contract.js");
 const { setUserReward } = require("../contractService/Token_contract.js");
+const {
+  sendOutbreakVerifiedNotification,
+} = require("../services/notification_service.js");
 
 const router = express.Router();
 
@@ -650,6 +653,21 @@ router.patch(
 
       // Update local database
       await OUT.findByIdAndUpdate(reportId, { verifiedBy: userId });
+
+      // Send verification notification to submitter asynchronously
+      sendOutbreakVerifiedNotification({
+        submitterEmail: localRecord.submittedBy?.email,
+        submitterName: localRecord.submittedBy?.name,
+        diseaseCategory: localRecord.descriptionComponents?.diseaseCategory,
+        reportType: localRecord.descriptionComponents?.reportType,
+        location: localRecord.location,
+        verifierRole: req.user?.role,
+      }).catch((err) =>
+        console.error(
+          "Failed to dispatch outbreak verification notification:",
+          err.message
+        )
+      );
 
       res.status(200).json({
         success: true,
