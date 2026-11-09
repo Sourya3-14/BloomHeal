@@ -3,7 +3,14 @@ import NGOProfile from "../models/NGOProfile.js";
 import DoctorProfile from "../models/DoctorProfile.js";
 import HealthWorkerProfile from "../models/HealthWorkerProfile.js";
 import PatientProfile from "../models/PatientProfile.js";
+
 import { signAccessToken, signRefreshToken } from "../utils/jwt.js";
+import {
+  sendSignupWelcomeEmail,
+  sendLoginAlertEmail,
+} from "../services/notification_service.js";
+
+import redis from "../config/redis.js";
 
 function ok(res, message, data = {}) {
   return res.json({ success: true, message, data });
@@ -14,16 +21,37 @@ function fail(res, status, message) {
 
 export async function signup(req, res, next) {
   try {
-    const { email, password, firstName, lastName, role, phone, location } = req.body;
+    const { email, password, firstName, lastName, role, phone, location } =
+      req.body;
 
     if (!email || !password || !firstName || !lastName || !role) {
       return fail(res, 400, "Missing required fields");
     }
 
+    const emailNormalized = email.trim().toLowerCase();
+
+    // Check whether this email has been verified
+    console.log(emailNormalized);
+    const isVerified = await redis.get(`otp:verified:${emailNormalized}`);
+    console.log(isVerified);
+
+    if (!isVerified) {
+      console.log("Email not verified");
+      return fail(res, 403, "Please verify your email before signing up");
+    }
+
     const exists = await User.findOne({ email });
     if (exists) return fail(res, 409, "Email already registered");
 
-    const user = await User.create({ email, password, firstName, lastName, role, phone, location });
+    const user = await User.create({
+      email: emailNormalized,
+      password: password,
+      firstName: firstName,
+      lastName: lastName,
+      role: role,
+      phone: phone,
+      location: location,
+    });
 
     // Create empty role profile NOW (fields remain null)
     const link = { user: user._id };
@@ -35,17 +63,25 @@ export async function signup(req, res, next) {
     const accessToken = signAccessToken({ id: user._id, role: user.role });
     const refreshToken = signRefreshToken({ id: user._id, role: user.role });
 
+    await redis.del(`otp:verified:${emailNormalized}`);
+
+    // Send welcome email asynchronously
+    sendSignupWelcomeEmail({ user }).catch((err) =>
+      console.error("Failed to send signup welcome email:", err.message)
+    );
+
     return ok(res, "Signup successful", {
       user: {
         id: user._id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role
+        role: user.role,
       },
-      tokens: { accessToken, refreshToken }
+      tokens: { accessToken, refreshToken },
     });
   } catch (err) {
+    console.log(err.msg);
     next(err);
   }
 }
@@ -62,15 +98,20 @@ export async function login(req, res, next) {
     const accessToken = signAccessToken({ id: user._id, role: user.role });
     const refreshToken = signRefreshToken({ id: user._id, role: user.role });
 
+    // Send login alert email asynchronously
+    sendLoginAlertEmail({ user, loginTime: new Date() }).catch((err) =>
+      console.error("Failed to send login alert email:", err.message)
+    );
+
     return ok(res, "Login successful", {
       user: {
         id: user._id,
         email: user.email,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role
+        role: user.role,
       },
-      tokens: { accessToken, refreshToken }
+      tokens: { accessToken, refreshToken },
     });
   } catch (err) {
     next(err);
