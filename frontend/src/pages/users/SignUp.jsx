@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import api from "../../utils/api.js";
 import { AlertCircle, Loader2, UserPlus, ShieldCheck } from "lucide-react";
@@ -15,6 +15,22 @@ export default function SignUp() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [fieldErrors, setFieldErrors] = useState({});
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otpSent, setOtpSent] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [resendCountdown, setResendCountdown] = useState(0);
+  const otpInputRefs = useRef([]);
+
+  useEffect(() => {
+    if (resendCountdown === 0) return undefined;
+
+    const timer = window.setTimeout(
+      () => setResendCountdown((remaining) => Math.max(remaining - 1, 0)),
+      1000,
+    );
+    return () => window.clearTimeout(timer);
+  }, [resendCountdown]);
 
   // Validation functions
   const validateName = (name) => {
@@ -80,6 +96,13 @@ export default function SignUp() {
     setForm({ ...form, [name]: value });
     setError(""); // Clear general error when user types
 
+    if (name === "email") {
+      setOtp(["", "", "", "", "", ""]);
+      setOtpSent(false);
+      setEmailVerified(false);
+      setResendCountdown(0);
+    }
+
     // Real-time validation
     const fieldError = validateField(name, value);
     setFieldErrors((prev) => ({
@@ -97,8 +120,99 @@ export default function SignUp() {
     }));
   };
 
+  const handleSendOtp = async () => {
+    const emailError = validateEmail(form.email);
+    if (emailError) {
+      setFieldErrors((previous) => ({ ...previous, email: emailError }));
+      setError(emailError);
+      return;
+    }
+
+    setOtpLoading(true);
+    setError("");
+    try {
+      await api.post("/otp/send", { email: form.email.trim().toLowerCase() });
+      setOtp(["", "", "", "", "", ""]);
+      setOtpSent(true);
+      setEmailVerified(false);
+      setResendCountdown(30);
+      otpInputRefs.current[0]?.focus();
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || "Failed to send verification code");
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  const handleOtpChange = (index, value) => {
+    const digits = value.replace(/\D/g, "");
+    const nextOtp = [...otp];
+    if (digits.length > 1) {
+      digits.slice(0, 6 - index).split("").forEach((digit, offset) => {
+        nextOtp[index + offset] = digit;
+      });
+      setOtp(nextOtp);
+      otpInputRefs.current[Math.min(index + digits.length, 5)]?.focus();
+      return;
+    }
+
+    nextOtp[index] = digits;
+    setOtp(nextOtp);
+    if (digits && index < 5) otpInputRefs.current[index + 1]?.focus();
+  };
+
+  const handleOtpKeyDown = (index, event) => {
+    if (event.key === "Backspace" && !otp[index] && index > 0) {
+      otpInputRefs.current[index - 1]?.focus();
+    } else if (event.key === "ArrowLeft" && index > 0) {
+      otpInputRefs.current[index - 1]?.focus();
+    } else if (event.key === "ArrowRight" && index < 5) {
+      otpInputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpPaste = (index, event) => {
+    const pastedOtp = event.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    if (!pastedOtp) return;
+
+    event.preventDefault();
+    const nextOtp = [...otp];
+    pastedOtp.slice(0, 6 - index).split("").forEach((digit, offset) => {
+      nextOtp[index + offset] = digit;
+    });
+    setOtp(nextOtp);
+    otpInputRefs.current[Math.min(index + pastedOtp.length, 5)]?.focus();
+  };
+
+  const handleVerifyOtp = async () => {
+    const otpValue = otp.join("");
+    if (!/^\d{6}$/.test(otpValue)) {
+      setError("Enter the 6-digit verification code");
+      return;
+    }
+
+    setOtpLoading(true);
+    setError("");
+    try {
+      await api.post("/otp/verify", {
+        email: form.email.trim().toLowerCase(),
+        otp: otpValue,
+      });
+      setEmailVerified(true);
+      setError("");
+    } catch (err) {
+      setError(err.response?.data?.message || err.message || "Failed to verify code");
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!emailVerified) {
+      setError("Verify your email before creating an account");
+      return;
+    }
     setLoading(true);
     setError("");
 
@@ -216,12 +330,77 @@ export default function SignUp() {
               onBlur={handleBlur}
               required
               maxLength="254"
+              disabled={otpLoading}
               placeholder="jane.doe@example.com"
               className={`w-full text-sm font-medium bg-[#FAFDFB] border ${
                 fieldErrors.email ? "border-red-300 focus:ring-red-500/20" : "border-[#C8E6D8] focus:border-[#2D7A5F] focus:ring-[#2D7A5F]/10"
               } rounded-xl px-3.5 py-2.5 outline-none transition-all focus:ring-4 placeholder-[#4A7A6A]/40 text-[#1A3C34] shadow-sm`}
             />
             {fieldErrors.email && <p className="text-[11px] font-bold text-red-600">{fieldErrors.email}</p>}
+            {!otpSent && (
+              <button
+                type="button"
+                onClick={handleSendOtp}
+                disabled={otpLoading || Boolean(validateEmail(form.email))}
+                className="mt-2 rounded-lg border border-[#2D7A5F] px-3 py-2 text-xs font-bold text-[#2D7A5F] transition-colors hover:bg-[#2D7A5F]/5 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {otpLoading ? "Sending code..." : "Send verification code"}
+              </button>
+            )}
+            {otpSent && (
+              <div className="mt-3 space-y-3">
+                <p className="text-xs font-medium text-[#4A7A6A]">
+                  Enter the 6-digit code sent to your email.
+                </p>
+                <div className="flex gap-2">
+                  {otp.map((digit, index) => (
+                    <input
+                      key={index}
+                      ref={(element) => {
+                        otpInputRefs.current[index] = element;
+                      }}
+                      type="text"
+                      inputMode="numeric"
+                      autoComplete={index === 0 ? "one-time-code" : "off"}
+                      aria-label={`Verification code digit ${index + 1}`}
+                      value={digit}
+                      maxLength={6}
+                      disabled={emailVerified || otpLoading}
+                      onChange={(event) => handleOtpChange(index, event.target.value)}
+                      onKeyDown={(event) => handleOtpKeyDown(index, event)}
+                      onPaste={(event) => handleOtpPaste(index, event)}
+                      className="h-12 w-11 rounded-xl border border-[#C8E6D8] bg-[#FAFDFB] text-center text-lg font-bold text-[#1A3C34] outline-none focus:border-[#2D7A5F] focus:ring-4 focus:ring-[#2D7A5F]/10 disabled:opacity-70"
+                    />
+                  ))}
+                </div>
+                {emailVerified ? (
+                  <p className="text-xs font-bold text-[#2D7A5F]" role="status">
+                    Email verified successfully.
+                  </p>
+                ) : (
+                  <div className="flex flex-wrap items-center gap-3">
+                    <button
+                      type="button"
+                      onClick={handleVerifyOtp}
+                      disabled={otpLoading || otp.join("").length !== 6}
+                      className="rounded-lg bg-[#2D7A5F] px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-[#245F4A] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {otpLoading ? "Verifying..." : "Verify code"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSendOtp}
+                      disabled={otpLoading || resendCountdown > 0}
+                      className="text-xs font-bold text-[#2D7A5F] hover:underline disabled:cursor-not-allowed disabled:text-[#4A7A6A]/60 disabled:no-underline"
+                    >
+                      {resendCountdown > 0
+                        ? `Resend code in ${resendCountdown}s`
+                        : "Resend code"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Password */}
@@ -284,7 +463,12 @@ export default function SignUp() {
           {/* Submission Trigger */}
           <button
             type="submit"
-            disabled={loading || Object.keys(fieldErrors).some((key) => fieldErrors[key])}
+            disabled={
+              loading ||
+              otpLoading ||
+              !emailVerified ||
+              Object.keys(fieldErrors).some((key) => fieldErrors[key])
+            }
             className="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-[#2D7A5F] px-4 py-3 text-xs font-black text-white hover:bg-[#245F4A] disabled:opacity-50 disabled:pointer-events-none transition-all shadow-md active:scale-95 mt-4">
             {loading ? (
               <>

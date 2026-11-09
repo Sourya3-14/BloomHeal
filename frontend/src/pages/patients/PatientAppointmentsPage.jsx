@@ -69,7 +69,20 @@ export default function PatientAppointmentsPage() {
     }
   };
 
-  const handleJoinVideoCall = (appointment) => {
+  const handleJoinVideoCall = async (appointment) => {
+    if (appointment.meetingStatus === "READY") {
+      try {
+        const response = await api.get(
+          `/patient/${appointment._id}/meeting-access`,
+        );
+        window.location.assign(response.data.meetUrl);
+        return;
+      } catch (err) {
+        alert(err?.response?.data?.message || "Unable to open Google Meet");
+        return;
+      }
+    }
+
     localStorage.setItem(
       "currentAppointment",
       JSON.stringify({

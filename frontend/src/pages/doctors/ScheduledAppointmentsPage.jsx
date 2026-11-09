@@ -9,6 +9,7 @@ export default function ScheduledAppointmentsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [currentUser, setCurrentUser] = useState(null);
+  const [connectingCalendar, setConnectingCalendar] = useState(false);
   const [filter, setFilter] = useState("all"); // all, today, upcoming, past
   const navigate = useNavigate();
 
@@ -106,7 +107,20 @@ export default function ScheduledAppointmentsPage() {
     }
   };
 
-  const handleStartVideoCall = (appointment) => {
+  const handleStartVideoCall = async (appointment) => {
+    if (appointment.meetingStatus === "READY") {
+      try {
+        const response = await api.get(
+          `/patient/${appointment._id}/meeting-access`,
+        );
+        window.location.assign(response.data.meetUrl);
+        return;
+      } catch (err) {
+        alert(err?.response?.data?.message || "Unable to open Google Meet");
+        return;
+      }
+    }
+
     localStorage.setItem(
       "currentAppointment",
       JSON.stringify({
@@ -119,6 +133,21 @@ export default function ScheduledAppointmentsPage() {
       }),
     );
     navigate("/video-call");
+  };
+
+  const handleConnectCalendar = async () => {
+    setConnectingCalendar(true);
+    try {
+      const response = await api.post(
+        "/api/google/connect",
+        {},
+        { withCredentials: true },
+      );
+      window.location.assign(response.data.url);
+    } catch (err) {
+      alert(err.response?.data?.message || "Unable to connect Google Calendar");
+      setConnectingCalendar(false);
+    }
   };
 
   const getFilteredCounts = (type) => {
@@ -189,12 +218,23 @@ export default function ScheduledAppointmentsPage() {
           <h1 className="text-2xl font-black tracking-tight text-[#1A3C34] sm:text-3xl">Scheduled Appointments</h1>
           <p className="text-xs sm:text-sm font-medium text-[#4A7A6A] max-w-xl">Track active treatment tracks, sync secure clinical rooms, or recalibrate patient calendars directly within your operations ledger.</p>
         </div>
-        <button
-          className="self-start md:self-center inline-flex items-center gap-2 rounded-xl border border-[#C8E6D8] bg-white px-4 py-2 text-xs font-extrabold text-[#4A7A6A] transition-all duration-200 hover:border-[#2D7A5F] hover:text-[#2D7A5F] hover:bg-[#2D7A5F]/5 active:scale-95 shadow-sm"
-          onClick={() => navigate("/doctors")}>
-          <ArrowLeft size={14} />
-          Back to Doctors
-        </button>
+        <div className="flex flex-wrap gap-2">
+          {!currentUser?.googleCalendarConnected && (
+            <button
+              className="self-start md:self-center inline-flex items-center gap-2 rounded-xl border border-[#C8E6D8] bg-white px-4 py-2 text-xs font-extrabold text-[#2D7A5F] transition-all duration-200 hover:border-[#2D7A5F] hover:bg-[#2D7A5F]/5 active:scale-95 shadow-sm disabled:opacity-60"
+              onClick={handleConnectCalendar}
+              disabled={connectingCalendar}>
+              <CalendarRange size={14} />
+              {connectingCalendar ? "Connecting..." : "Connect Google Calendar"}
+            </button>
+          )}
+          <button
+            className="self-start md:self-center inline-flex items-center gap-2 rounded-xl border border-[#C8E6D8] bg-white px-4 py-2 text-xs font-extrabold text-[#4A7A6A] transition-all duration-200 hover:border-[#2D7A5F] hover:text-[#2D7A5F] hover:bg-[#2D7A5F]/5 active:scale-95 shadow-sm"
+            onClick={() => navigate("/doctors")}>
+            <ArrowLeft size={14} />
+            Back to Doctors
+          </button>
+        </div>
       </div>
     </div>
   );

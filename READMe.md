@@ -248,7 +248,16 @@ JWT_REFRESH_SECRET=your_jwt_refresh_secret_key_here
 JWT_ACCESS_EXPIRES=30h
 JWT_REFRESH_EXPIRES=30d
 CLIENT_ORIGIN=http://localhost:5173
+FRONTEND_URL=http://localhost:5173
+SESSION_SECRET=your_session_secret
+GOOGLE_CLIENT_ID=your_google_oauth_client_id
+GOOGLE_CLIENT_SECRET=your_google_oauth_client_secret
+GOOGLE_REDIRECT_URI=http://localhost:5000/api/google/callback
+GOOGLE_TOKEN_ENCRYPTION_KEY=64_hex_characters_for_a_32_byte_key
 ```
+
+Add the Google callback URL to the OAuth client’s authorized redirect URIs.
+Generate `GOOGLE_TOKEN_ENCRYPTION_KEY` as 32 random bytes encoded in hex.
 
 ### 2. `blockchain_backend/.env`
 ```env
